@@ -273,11 +273,11 @@ impl<'a> EncodingArt<'a> {
 }
 
 pub fn gen_encoding(bytes: &[u8]) -> Result<String, &'static str> {
-    if bytes.len() > 64 {
+    if bytes.len() > 128 {
         return Err("Byte length is too big");
     }
     let bytes = [[bytes.len() as u8].as_slice(), bytes].concat();
-    for size in 1..13 {
+    for size in 1..32 {
         let encoder = EncodingArt::new(0, InformationStream::new(&bytes));
         let img = encoder.encode_image(size);
         let mut r = EncodingArt::decode_img(&img);

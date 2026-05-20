@@ -10,7 +10,7 @@ fn main() {
         .arg(
             Arg::new("encode_bytes")
                 .help("Encode a hex string into an ascii artwork")
-                .long_help("Encode a hex string into an ascii artwork. The hex string may not be greater than 64 bytes")
+                .long_help("Encode a hex string into an ascii artwork. The hex string may not be greater than 128 bytes")
                 .short('e'),
         )
         .arg(
