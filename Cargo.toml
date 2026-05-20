@@ -1,0 +1,11 @@
+[package]
+name = "key_art"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+fractional_bitstream = { git = "https://github.com/Ekischleki/arithmetic_stream.git" }
+itertools = "0.14.0"
+clap = { version = "4.6.1", features = ["derive"] }
+rand = "0.10.1"
+hex = "0.4.3"
