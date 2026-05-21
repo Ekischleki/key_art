@@ -299,6 +299,33 @@ pub fn gen_encoding(bytes: &[u8], skip_length_check: bool) -> Result<String, &'s
     return Err("Couldn't encode the bytes");
 }
 
+pub fn gen_raw_encoding(bytes: &[u8], skip_length_check: bool) -> Result<String, &'static str> {
+    if bytes.len() > 128 && !skip_length_check {
+        return Err("Byte length is too big");
+    }
+    let trailing_zeroes = match bytes.iter().rposition(|d| *d != 0) {
+        Some(s) => s,
+        None => return gen_encoding(&[], skip_length_check),
+    };
+    let bytes = &bytes[..=trailing_zeroes];
+    for size in 1..(if skip_length_check { 999999 } else { 32 }) {
+        let encoder = EncodingArt::new(0, InformationStream::new(bytes));
+        let img = encoder.encode_image(size);
+        let r = EncodingArt::decode_img(&img);
+        if r.len() == 0 && bytes.len() == 0 {
+            return Ok(img);
+        }
+        if r.len() == 0 {
+            continue;
+        }
+        if r == bytes {
+            return Ok(img);
+        }
+    }
+
+    return Err("Couldn't encode the bytes");
+}
+
 pub fn decode_image(image: &str) -> Vec<u8> {
     let mut r = EncodingArt::decode_img(&image);
     r.resize_with(r[0] as usize + 1, || 0);

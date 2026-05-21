@@ -10,6 +10,7 @@ pub mod art_encoding;
 #[derive(Clone, Copy)]
 pub struct AppFlags {
     silent: bool,
+    raw: bool,
 }
 
 pub struct EncodingFlags {
@@ -21,7 +22,11 @@ fn encode_bytes(bytes: &[u8], encoding_flags: &EncodingFlags) -> String {
     if !encoding_flags.app_flags.silent {
         println!("Generating image...");
     }
-    let img = match art_encoding::gen_encoding(&bytes, encoding_flags.skip_length_check) {
+    let img = match if encoding_flags.app_flags.raw {
+        art_encoding::gen_raw_encoding(&bytes, encoding_flags.skip_length_check)
+    } else {
+        art_encoding::gen_encoding(&bytes, encoding_flags.skip_length_check)
+    } {
         Ok(ok) => ok,
         Err(e) => {
             if !encoding_flags.app_flags.silent {
@@ -72,6 +77,9 @@ fn read_image_stdin(flags: &AppFlags) -> Result<String, io::Error> {
 fn decode_image(img: String, flags: &AppFlags) -> Vec<u8> {
     if !flags.silent {
         println!("Decoding image...");
+    }
+    if flags.raw {
+        return art_encoding::EncodingArt::decode_img(&img);
     }
     art_encoding::decode_image(&img)[1..].to_vec()
 }
@@ -297,14 +305,21 @@ fn handle_decode(matches: &ArgMatches, app_flags: &AppFlags) {
 fn main() {
     let command = Command::new("One time share")
         .about("Generate an artwork that encodes data")
-        .arg(
+        .args([
             Arg::new("silent")
-            .help("Disable all standard output except necessary.")
-            .long_help("Disable all standard output except necessary. There will only be output over standard output if no output file is provided and the program has an operation result.")
-            .short('s')
-            .long("silent")
-            .action(ArgAction::SetTrue)
-            .global(true)
+                .help("Disable all standard output except necessary.")
+                .long_help("Disable all standard output except necessary. There will only be output over standard output if no output file is provided and the program has an operation result.")
+                .short('s')
+                .long("silent")
+                .action(ArgAction::SetTrue)
+                .global(true),
+            Arg::new("raw")
+                .help("Bypass headers useful for encoding and encode raw bytes")
+                .short('r')
+                .long("raw")
+                .action(ArgAction::SetTrue)
+                .global(true),
+            ]
         )
 
         .subcommand(encode_subcommand())
@@ -315,6 +330,7 @@ fn main() {
         .get_matches();
 
     let app_flags = AppFlags {
+        raw: command.get_flag("raw"),
         silent: command.get_flag("silent"),
     };
 
