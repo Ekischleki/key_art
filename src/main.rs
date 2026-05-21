@@ -141,7 +141,7 @@ fn handle_encode(matches: &ArgMatches, app_flags: &AppFlags) {
         byte_vec = match hex::decode(input) {
             Ok(ok) => ok,
             Err(e) => {
-                if app_flags.silent {
+                if !app_flags.silent {
                     println!("Couldn't parse the hex string: {e}");
                 }
                 std::process::exit(16);
