@@ -272,12 +272,12 @@ impl<'a> EncodingArt<'a> {
     }
 }
 
-pub fn gen_encoding(bytes: &[u8]) -> Result<String, &'static str> {
-    if bytes.len() > 128 {
+pub fn gen_encoding(bytes: &[u8], skip_length_check: bool) -> Result<String, &'static str> {
+    if bytes.len() > 128 && !skip_length_check {
         return Err("Byte length is too big");
     }
     let bytes = [[bytes.len() as u8].as_slice(), bytes].concat();
-    for size in 1..32 {
+    for size in 1..(if skip_length_check { 999999 } else { 32 }) {
         let encoder = EncodingArt::new(0, InformationStream::new(&bytes));
         let img = encoder.encode_image(size);
         let mut r = EncodingArt::decode_img(&img);
