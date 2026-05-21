@@ -1,20 +1,12 @@
 use std::{
     fs::File,
     io::{self, Read, Write, stdin},
-    path::PathBuf,
-    str::FromStr,
 };
 
-use clap::{Arg, ArgAction, ArgGroup, ArgMatches, Command, ValueHint, builder::Str};
+use clap::{Arg, ArgAction, ArgGroup, ArgMatches, Command};
 
 pub mod art_encoding;
 
-enum InputMethod {
-    InputFile(PathBuf),
-    InputHex(Vec<u8>),
-    InputText(String),
-    InputImage(String),
-}
 #[derive(Clone, Copy)]
 pub struct AppFlags {
     silent: bool,
@@ -236,7 +228,7 @@ fn decode_subcommand() -> Command {
 }
 
 fn handle_decode(matches: &ArgMatches, app_flags: &AppFlags) {
-    let input_img = match matches.get_one::<PathBuf>("input") {
+    let input_img = match matches.get_one::<String>("input") {
         Some(path) => {
             let mut file = match File::open(path) {
                 Ok(ok) => ok,
