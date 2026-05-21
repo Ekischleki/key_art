@@ -5,7 +5,7 @@ use std::{
     str::FromStr,
 };
 
-use clap::{Arg, ArgAction, ArgGroup, ArgMatches, Command, ValueHint};
+use clap::{Arg, ArgAction, ArgGroup, ArgMatches, Command, ValueHint, builder::Str};
 
 pub mod art_encoding;
 
@@ -182,14 +182,14 @@ fn handle_encode(matches: &ArgMatches, app_flags: &AppFlags) {
 
     let image = encode_bytes(input_bytes, &encoding_flags);
 
-    let output = matches.get_one::<PathBuf>("output");
+    let output = matches.get_one::<String>("output");
     match output {
         Some(p) => {
             let mut file = match File::create(p) {
                 Ok(ok) => ok,
                 Err(e) => {
                     if !app_flags.silent {
-                        println!("Couldn't open file: {e}");
+                        println!("Couldn't create file: {e}");
                     }
                     std::process::exit(16);
                 }
@@ -269,14 +269,14 @@ fn handle_decode(matches: &ArgMatches, app_flags: &AppFlags) {
 
     let image = decode_image(input_img, app_flags);
 
-    let output = matches.get_one::<PathBuf>("output");
+    let output = matches.get_one::<String>("output");
     match output {
         Some(p) => {
             let mut file = match File::create(p) {
                 Ok(ok) => ok,
                 Err(e) => {
                     if !app_flags.silent {
-                        println!("Couldn't open file: {e}");
+                        println!("Couldn't create file: {e}");
                     }
                     std::process::exit(16);
                 }
